@@ -35,6 +35,5 @@ Implementação ingênua de um protótipo de interface, estruturado a partir da 
 - **Prioridade:** implementar tela de inventário (Estado Inventory);
 - **Importante:** implementar tela de mapa (Estado Map);
 - **Útil:** implementar tela de opções (Estado Options);
-
 - As imagens do protótipo foram geradas com uso de IA. Dessa forma, é provável que a identidade visual do jogo mude.
 
