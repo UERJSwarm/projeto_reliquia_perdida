@@ -48,10 +48,6 @@ int main (int argc, char* args[]) {
 
         const Uint8* teclas = SDL_GetKeyboardState(NULL);
 
-        if (isevt) {
-            if (evt.type == SDL_QUIT)
-                rodando = false;
-
             if (isevt) { 
                if (evt.type == SDL_QUIT) rodando = false; 
                else if (evt.type == SDL_KEYDOWN) { 
@@ -101,7 +97,6 @@ int main (int argc, char* args[]) {
                     }
                 }
             }
-         }
          }
 
         switch (estado) {
