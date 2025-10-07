@@ -13,6 +13,7 @@ int AUX_WaitEventTimeout(SDL_Event* evt, Uint32* ms) {
     else
         *ms -= d;
     }
+
     return ret;
 }
 
@@ -53,7 +54,7 @@ int main (int argc, char* args[]) {
                if (evt.type == SDL_QUIT) rodando = false; 
                else if (evt.type == SDL_KEYDOWN) { 
                   switch (evt.key.keysym.sym) { 
-                     case SDLK_LSHIFT: estado = CORRENDO; 
+                     case SDLK_LSHIFT: if (noChao) estado = CORRENDO; 
                         break; 
                      case SDLK_SPACE: 
                          if (noChao) {
@@ -67,13 +68,15 @@ int main (int argc, char* args[]) {
                      case SDLK_DOWN: 
                      case SDLK_LEFT: 
                      case SDLK_RIGHT: 
-                         if (estado != CORRENDO && estado != PULANDO) estado = ANDANDO; 
+                         if (estado != CORRENDO && estado != PULANDO && noChao) estado = ANDANDO; 
                       break; 
                    } 
                 }
 
             else if (evt.type == SDL_KEYUP) {
+              if (noChao) {
                 if (evt.key.keysym.sym == SDLK_LSHIFT) {
+
                     if (teclas[SDL_SCANCODE_LEFT] || teclas[SDL_SCANCODE_RIGHT] ||
                         teclas[SDL_SCANCODE_UP]   || teclas[SDL_SCANCODE_DOWN]) {
                         estado = ANDANDO;
@@ -97,6 +100,7 @@ int main (int argc, char* args[]) {
                         estado = PARADO;
                     }
                 }
+             }
             }
          }
 
