@@ -39,10 +39,10 @@ int main (int argc, char* args[]) {
 
     EstadoMovimento estado = PARADO;
     int vel = 1;
-    int velY = 0;
     bool noChao = true;
     int chao = r.y;
-
+    bool subindo = true;
+     
     while (rodando) {
         int isevt = AUX_WaitEventTimeout(&evt, &espera);
 
@@ -63,7 +63,6 @@ int main (int argc, char* args[]) {
  
                             chao = r.y;
                             estado = PULANDO;
-                            velY = -15;
                             noChao = false;
                         }
                         break; 
@@ -123,23 +122,25 @@ int main (int argc, char* args[]) {
                 break;
 
             case PULANDO:
-            {
-              if (teclas[SDL_SCANCODE_LEFT])  r.x -= vel;
-              if (teclas[SDL_SCANCODE_RIGHT]) r.x += vel;
-              if (!noChao) {
-                if (r.y > chao - 50) { 
-                  r.y -= vel;         
-                } else {
-                  r.y += vel;  
-                  if (r.y >= chao) {
-                    r.y = chao;
-                    estado = PARADO;
-                    noChao = true;
+                {
+               if (teclas[SDL_SCANCODE_LEFT])  r.x -= vel;
+               if (teclas[SDL_SCANCODE_RIGHT]) r.x += vel;
+
+               if (subindo) {
+                  r.y -= vel;
+                  if (r.y <= chao - 50)
+                       subindo = false;
+               } else {
+               r.y += vel;  // desce
+               if (r.y >= chao) { 
+               r.y = chao;
+               estado = PARADO;
+               noChao = true;
+               subindo = true;
+                    }
+                  }
                  }
-                 }
-            }
-          }
-          break;
+            break;
 
             default:
                 break;
