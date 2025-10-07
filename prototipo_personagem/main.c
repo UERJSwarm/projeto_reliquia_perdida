@@ -129,7 +129,12 @@ int main (int argc, char* args[]) {
                r.y += vel;
                if (r.y >= chao) { 
                r.y = chao;
-               estado = PARADO;
+               if (teclas[SDL_SCANCODE_LEFT] || teclas[SDL_SCANCODE_RIGHT] ||
+                        teclas[SDL_SCANCODE_UP]   || teclas[SDL_SCANCODE_DOWN]) {
+                        estado = ANDANDO;
+                    } else {
+                        estado = PARADO;
+                    }
                noChao = true;
                subindo = true;
                     }
