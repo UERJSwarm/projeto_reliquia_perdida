@@ -6,11 +6,13 @@ int AUX_WaitEventTimeout(SDL_Event* evt, Uint32* ms) {
     int ret = SDL_WaitEventTimeout(evt, *ms);
     Uint32 depois = SDL_GetTicks();
     Uint32 d = depois - antes;
-
+  
+    if (ret) {
     if (d >= *ms)
         *ms = 0;
     else
         *ms -= d;
+    }
 
     return ret;
 }
@@ -34,7 +36,7 @@ int main (int argc, char* args[]) {
 
     SDL_Rect r = { 180, 130, 20, 20 };
     bool rodando = true;
-    Uint32 espera = 100;
+    Uint32 espera = 10;
     SDL_Event evt;
 
     EstadoMovimento estado = PARADO;
@@ -48,15 +50,11 @@ int main (int argc, char* args[]) {
 
         const Uint8* teclas = SDL_GetKeyboardState(NULL);
 
-        if (isevt) {
-            if (evt.type == SDL_QUIT)
-                rodando = false;
-
             if (isevt) { 
                if (evt.type == SDL_QUIT) rodando = false; 
                else if (evt.type == SDL_KEYDOWN) { 
                   switch (evt.key.keysym.sym) { 
-                     case SDLK_LSHIFT: estado = CORRENDO; 
+                     case SDLK_LSHIFT: if (noChao) estado = CORRENDO; 
                         break; 
                      case SDLK_SPACE: 
                          if (noChao) {
@@ -70,13 +68,15 @@ int main (int argc, char* args[]) {
                      case SDLK_DOWN: 
                      case SDLK_LEFT: 
                      case SDLK_RIGHT: 
-                         if (estado != CORRENDO && estado != PULANDO) estado = ANDANDO; 
+                         if (estado != CORRENDO && estado != PULANDO && noChao) estado = ANDANDO; 
                       break; 
                    } 
                 }
 
             else if (evt.type == SDL_KEYUP) {
+              if (noChao) {
                 if (evt.key.keysym.sym == SDLK_LSHIFT) {
+
                     if (teclas[SDL_SCANCODE_LEFT] || teclas[SDL_SCANCODE_RIGHT] ||
                         teclas[SDL_SCANCODE_UP]   || teclas[SDL_SCANCODE_DOWN]) {
                         estado = ANDANDO;
@@ -100,8 +100,8 @@ int main (int argc, char* args[]) {
                         estado = PARADO;
                     }
                 }
+             }
             }
-         }
          }
 
         switch (estado) {
@@ -134,7 +134,12 @@ int main (int argc, char* args[]) {
                r.y += vel;
                if (r.y >= chao) { 
                r.y = chao;
-               estado = PARADO;
+               if (teclas[SDL_SCANCODE_LEFT] || teclas[SDL_SCANCODE_RIGHT] ||
+                        teclas[SDL_SCANCODE_UP]   || teclas[SDL_SCANCODE_DOWN]) {
+                        estado = ANDANDO;
+                    } else {
+                        estado = PARADO;
+                    }
                noChao = true;
                subindo = true;
                     }
@@ -145,6 +150,7 @@ int main (int argc, char* args[]) {
             default:
                 break;
         }
+        espera = 10;
 
         SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
         SDL_RenderClear(ren);
