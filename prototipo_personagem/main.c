@@ -1,5 +1,7 @@
+#include <assert.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <SDL2/SDL_image.h>
 
 int AUX_WaitEventTimeout(SDL_Event* evt, Uint32* ms) {
     Uint32 antes = SDL_GetTicks();
@@ -33,18 +35,23 @@ int main (int argc, char* args[]) {
                          SDL_WINDOWPOS_CENTERED,
                          400, 300, SDL_WINDOW_SHOWN);
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-
-    SDL_Rect r = { 180, 130, 20, 20 };
+    SDL_Texture* img = IMG_LoadTexture(ren, "anim2.png");
+    assert(img != NULL);
+    SDL_Rect r = { 180, 130, 70, 70 };
+    SDL_RenderClear(ren); SDL_Rect c; 
     bool rodando = true;
     Uint32 espera = 10;
     SDL_Event evt;
 
     EstadoMovimento estado = PARADO;
+    c = (SDL_Rect) {0, 0, 100, 80};
     int vel = 1;
     bool noChao = true;
     int chao = r.y;
     bool subindo = true;
-     
+    int k = 0;
+    int aux = 2;
+
     while (rodando) {
         int isevt = AUX_WaitEventTimeout(&evt, &espera);
 
@@ -107,24 +114,66 @@ int main (int argc, char* args[]) {
         switch (estado) {
             case ANDANDO:
                 vel = 1;
-                if (teclas[SDL_SCANCODE_UP])    r.y -= vel;
-                if (teclas[SDL_SCANCODE_DOWN])  r.y += vel;
-                if (teclas[SDL_SCANCODE_LEFT])  r.x -= vel;
-                if (teclas[SDL_SCANCODE_RIGHT]) r.x += vel;
+                if (teclas[SDL_SCANCODE_UP]) {
+                   if (aux == 1) c = (SDL_Rect) {200, 0, 100, 80};
+                   if (aux == 2) c = (SDL_Rect) {100, 0, 100, 80};
+                   r.y -= vel;
+                }
+                if (teclas[SDL_SCANCODE_DOWN]) {
+                   if (aux == 1) c = (SDL_Rect) {200, 0, 100, 80};
+                   if (aux == 2) c = (SDL_Rect) {100, 0, 100, 80};
+                   r.y += vel;
+                }
+                if (teclas[SDL_SCANCODE_LEFT]) {
+                   r.x -= vel;
+                   c = (SDL_Rect) {200, 0, 100, 80};
+                   aux = 1;
+                }
+                if (teclas[SDL_SCANCODE_RIGHT]) {
+                   r.x += vel;
+                   c = (SDL_Rect) {100, 0, 100, 80};
+                   aux = 2;
+                }
                 break;
 
             case CORRENDO:
                 vel = 2;
-                if (teclas[SDL_SCANCODE_UP])    r.y -= vel;
-                if (teclas[SDL_SCANCODE_DOWN])  r.y += vel;
-                if (teclas[SDL_SCANCODE_LEFT])  r.x -= vel;
-                if (teclas[SDL_SCANCODE_RIGHT]) r.x += vel;
+                if (teclas[SDL_SCANCODE_UP]) {
+                   if (aux == 1) c = (SDL_Rect) {590, 0, 100, 80};
+                   if (aux == 2) c = (SDL_Rect) {490, 0, 100, 80};
+                   r.y -= vel;
+                }
+                if (teclas[SDL_SCANCODE_DOWN]) {
+                   if (aux == 1) c = (SDL_Rect) {590, 0, 100, 80};
+                   if (aux == 2) c = (SDL_Rect) {490, 0, 100, 80};
+                   r.y += vel;
+                }
+                if (teclas[SDL_SCANCODE_LEFT]) {
+                   r.x -= vel;
+                   c = (SDL_Rect) {590, 0, 100, 80};
+                   aux = 1;
+                }
+                if (teclas[SDL_SCANCODE_RIGHT]) {
+                   r.x += vel;
+                   c = (SDL_Rect) {490, 0, 100, 80};
+                   aux = 2;
+                }
                 break;
 
             case PULANDO:
                 {
-               if (teclas[SDL_SCANCODE_LEFT])  r.x -= vel;
-               if (teclas[SDL_SCANCODE_RIGHT]) r.x += vel;
+               if (k == 0) {
+                  c = (SDL_Rect) {300, 0, 100, 80};
+                  k = 1;
+               }
+               if (teclas[SDL_SCANCODE_LEFT]) {
+                  r.x -= vel;
+                  c = (SDL_Rect) {400, 0, 100, 80};
+               }
+               if (teclas[SDL_SCANCODE_RIGHT]) {
+                  r.x += vel;
+                  c = (SDL_Rect) {300, 0, 100, 80};
+               }
 
                if (subindo) {
                   r.y -= vel;
@@ -134,6 +183,7 @@ int main (int argc, char* args[]) {
                r.y += vel;
                if (r.y >= chao) { 
                r.y = chao;
+               k = 0;
                if (teclas[SDL_SCANCODE_LEFT] || teclas[SDL_SCANCODE_RIGHT] ||
                         teclas[SDL_SCANCODE_UP]   || teclas[SDL_SCANCODE_DOWN]) {
                         estado = ANDANDO;
@@ -146,6 +196,11 @@ int main (int argc, char* args[]) {
                   }
                  }
             break;
+            case PARADO:
+               {
+                c = (SDL_Rect) {0, 0, 100, 80};
+               }
+            break;
 
             default:
                 break;
@@ -156,7 +211,7 @@ int main (int argc, char* args[]) {
         SDL_RenderClear(ren);
 
         SDL_SetRenderDrawColor(ren, 0, 0, 255, 255);
-        SDL_RenderFillRect(ren, &r);
+        SDL_RenderCopy(ren, img, &c, &r); 
 
         SDL_RenderPresent(ren);
     }
