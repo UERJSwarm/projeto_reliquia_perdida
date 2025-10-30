@@ -29,9 +29,6 @@ typedef enum {
 typedef Struct {
   EstadoMovimento EstadoAtual;
   int vida;
-  int x;
-  int y;
-
 } Personagem
 
 int main (int argc, char* args[]) {
