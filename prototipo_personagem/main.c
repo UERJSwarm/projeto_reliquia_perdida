@@ -24,8 +24,6 @@ typedef enum {
     ANDANDO,
     CORRENDO,
     PULANDO,
-    PEGARITEM,
-    DROPARITEM
 } EstadoMovimento;
 
 int main (int argc, char* args[]) {
