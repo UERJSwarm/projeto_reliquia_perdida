@@ -29,7 +29,7 @@ typedef enum {
 typedef Struct {
   EstadoMovimento EstadoAtual;
   int vida;
-} Personagem
+} Personagem;
 
 typedef enum {
     PARADA,
