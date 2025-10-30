@@ -26,6 +26,14 @@ typedef enum {
     PULANDO,
 } EstadoMovimento;
 
+typedef Struct {
+  EstadoMovimento EstadoAtual;
+  int vida;
+  int x;
+  int y;
+
+} Personagem
+
 int main (int argc, char* args[]) {
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window* win = SDL_CreateWindow("Protótipo do Personagem",
