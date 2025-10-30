@@ -42,12 +42,12 @@ typedef struct {
     EstadoDancarina estadoAtual;
 
     int vida;
-    int alcanceVisao;  // distância para começar a dançar
-    int raioHipnose;   // distância para hipnotizar o jogador
-    int tempoHipnose;  // duração máxima do efeito de hipnose
-    int tempoAtordoada;// tempo que fica atordoada
+    int alcanceVisao;
+    int raioHipnose;
+    int tempoHipnose;
+    int tempoAtordoada;
 
-    Uint32 tempoEstado; // última mudança de estado
+    Uint32 tempoEstado;
 
 } Dancarina;
 
