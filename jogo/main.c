@@ -298,7 +298,7 @@ int main(int argc, char* args[])
 						
 						if (evt.key.keysym.sym == SDLK_UP){
 							i--;
-							if (i<0) i=NUM_BUTTONS-1; // Correção: i=0
+							if (i<0) i=NUM_BUTTONS-1;
 							add_effect(&buttons[i]);
 						}
 								
@@ -323,8 +323,8 @@ int main(int argc, char* args[])
 					if(evt.type == SDL_KEYDOWN){
 						if (evt.key.keysym.sym == SDLK_s) state_ = STATE_INVENTORY;
 						else if (evt.key.keysym.sym == SDLK_d) state_ = STATE_MAP;
-						else if (evt.key.keysym.sym == SDLK_a) state_ = STATE_PAUSE; // Pause
-						else if (evt.key.keysym.sym == SDLK_ESCAPE) state_ = STATE_MENU; // Voltar ao Menu
+						else if (evt.key.keysym.sym == SDLK_a) state_ = STATE_PAUSE;
+						else if (evt.key.keysym.sym == SDLK_ESCAPE) state_ = STATE_MENU; 
 					}
 					break;
 
@@ -353,11 +353,7 @@ int main(int argc, char* args[])
 				if (effect) {
 					add_effect (&inicio_rect);
 				}
-        
-				else {
-					remove_effect (&inicio_rect);
-				}
-				effect = !effect;
+				remove_effect (&inicio_rect);
 			} else if (state_ == STATE_PLAY) {
                 AtualizarJogador(&estado_movimento, &player_r, &player_c, &vel, &noChao, &chao_y, &subindo, &k, &aux, teclas);
             }
