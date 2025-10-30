@@ -31,6 +31,34 @@ typedef Struct {
   int vida;
 } Personagem
 
+typedef enum {
+    PARADA,
+    DANCANDO,
+    HIPNOTIZANDO,
+    ATORDOADA,
+} EstadoDancarina;
+
+typedef struct {
+    EstadoDancarina estadoAtual;
+
+    int vida;
+    int alcanceVisao;  // distância para começar a dançar
+    int raioHipnose;   // distância para hipnotizar o jogador
+    int tempoHipnose;  // duração máxima do efeito de hipnose
+    int tempoAtordoada;// tempo que fica atordoada
+
+    Uint32 tempoEstado; // última mudança de estado
+
+} Dancarina;
+
+typedef enum {
+    CALMA,     
+    AFUNDANDO, 
+    PRENDENDO  
+} EstadoAreiaMovedica;
+
+
+
 int main (int argc, char* args[]) {
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window* win = SDL_CreateWindow("Protótipo do Personagem",
