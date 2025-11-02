@@ -9,7 +9,7 @@ A Relíquia Perdida é um jogo de exploração em que o jogador assume o papel d
 Um jogo de aventura e exploração inspirado em ToeJam & Earl, porém ambientado em um universo de arqueologia no estilo Indiana Jones.
 
 ### Diferencial
-O jogo utiliza **geração procedural** para criar automaticamente os mapas e elementos do cenário.
+O jogo utiliza **geração procedural** para criar os mapas e elementos do cenário.
 
 ## Mecânica
 Nesse protótipo serão implementados cinco níveis. O jogo terá uma versão “random”, em que os mapas serão gerados com sementes aleatórias e a versão fixa com as sementes iguais em todas as execuções do jogo.
