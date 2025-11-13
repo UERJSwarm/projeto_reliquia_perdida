@@ -26,7 +26,7 @@ typedef enum {
 } EstadoMovimento;
 
 typedef enum {
-    DANÇANDO,
+    DANCANDO,
     HIPNOTIZANDO,
     ATORDOADA,
     PARADA
@@ -154,7 +154,7 @@ int main(int argc, char* args[]) {
         const int STUN_DIST_QUADRADO = 50 * 50; 
 
         switch(danca.estadoAtual) {
-            case DANÇANDO:
+            case DANCANDO:
                 if(distQuadrada < danca.raioHipnoseQuadrado) {
                     danca.estadoAtual = HIPNOTIZANDO;
                     hipnotizado = true;
@@ -173,7 +173,7 @@ int main(int argc, char* args[]) {
                 }
                 
                 if(distQuadrada > danca.raioHipnoseSairQuadrado) {
-                    danca.estadoAtual = DANÇANDO;
+                    danca.estadoAtual = DANCANDO;
                     hipnotizado = false;
                     estado = PARADO; 
                     printf("Jogador escapou da hipnose.\n");
@@ -185,7 +185,7 @@ int main(int argc, char* args[]) {
                 break;
             case PARADA:
                 if(distQuadrada < danca.alcanceVisaoQuadrado)
-                    danca.estadoAtual = DANÇANDO;
+                    danca.estadoAtual = DANCANDO;
                 break;
         }
 
@@ -255,7 +255,7 @@ int main(int argc, char* args[]) {
         
         SDL_Color corDanca;
         switch(danca.estadoAtual) {
-            case DANÇANDO: corDanca=(SDL_Color){128,0,128,255}; break;     // roxo
+            case DANCANDO: corDanca=(SDL_Color){128,0,128,255}; break;     // roxo
             case HIPNOTIZANDO: corDanca=(SDL_Color){128,0,128,255}; break; // roxo
             case ATORDOADA: corDanca=(SDL_Color){128,128,128,255}; break;  // cinza
             case PARADA: corDanca=(SDL_Color){0,255,0,255}; break;         // verde
