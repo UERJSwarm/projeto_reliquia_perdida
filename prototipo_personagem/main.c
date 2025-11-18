@@ -48,15 +48,15 @@ typedef struct {
     int vida;
     int alcanceVisaoQuadrado;  
     int raioHipnoseQuadrado;  
-    int raioHipnoseSairQuadrado;
     Uint32 tempoEstado;
+    int deslocamento;
+    int direcaoDanca;
 } Dancarina;
 
 typedef struct {
     EstadoMumia estado;
     int x, y;
     int w, h;
-
     int alcanceVisao2;   // distancia para perseguir
     int distanciaEnrolar2; // distancia para ataque 
     Uint32 tempoEstado;  // para controle de stun e confusão
@@ -111,8 +111,9 @@ int main(int argc, char* args[]) {
         .vida = 3,
         .alcanceVisaoQuadrado = 200 * 200, 
         .raioHipnoseQuadrado = 70 * 70, 
-        .raioHipnoseSairQuadrado = 90 * 90, 
-        .tempoEstado = 0
+        .tempoEstado = 0,
+        .deslocamento = 0,
+        .direcaoDanca = 1
     };
     
     // --- Múmia ---
@@ -122,7 +123,7 @@ int main(int argc, char* args[]) {
         .y = 400,
         .w = 40,
         .h = 40,
-        .alcanceVisao2 = 250*250,
+        .alcanceVisao2 = 200*200,
         .distanciaEnrolar2 = 50*50,
         .tempoEstado = 0,
         .dirX = 1,
@@ -197,6 +198,13 @@ int main(int argc, char* args[]) {
                     estado = PARADO; 
                     printf("Jogador hipnotizado!\n");
                 }
+                if(distQuadrada > danca.alcanceVisaoQuadrado) {
+                    danca.estadoAtual = PARADA;
+                }
+                if(danca.deslocamento > 8) danca.direcaoDanca = -1;
+                if(danca.deslocamento < -8) danca.direcaoDanca = 1;
+                danca.deslocamento += danca.direcaoDanca;
+                danca.x += danca.direcaoDanca;
                 break;
             case HIPNOTIZANDO:
                 if(teclas[SDL_SCANCODE_E] && distQuadrada < STUN_DIST_QUADRADO) {
@@ -207,7 +215,7 @@ int main(int argc, char* args[]) {
                     printf("Dançarina atordoada!\n");
                 }
                 
-                if(distQuadrada > danca.raioHipnoseSairQuadrado) {
+                if(distQuadrada > danca.raioHipnoseQuadrado) {
                     danca.estadoAtual = DANCANDO;
                     hipnotizado = false;
                     estado = PARADO; 
@@ -288,7 +296,7 @@ int main(int argc, char* args[]) {
 
             case MUMIA_ENROLANDO:
                 enrolado = true;
-                if(SDL_GetTicks() - mumia.tempoEstado > 1000) {
+                if(SDL_GetTicks() - mumia.tempoEstado > 3000) {
                     mumia.estado = MUMIA_ATORDOADA;
                     mumia.tempoEstado = SDL_GetTicks();
                     enrolado = false;
