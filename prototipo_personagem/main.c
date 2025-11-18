@@ -187,8 +187,6 @@ int main(int argc, char* args[]) {
         int dy = player_world_y - danca.y;
         
         int distQuadrada = (dx*dx) + (dy*dy);
-        const int STUN_DIST_QUADRADO = 50 * 50; 
-
         switch(danca.estadoAtual) {
             case DANCANDO:
                 if(distQuadrada < danca.raioHipnoseQuadrado) {
@@ -207,19 +205,19 @@ int main(int argc, char* args[]) {
                 danca.x += danca.direcaoDanca;
                 break;
             case HIPNOTIZANDO:
-                if(teclas[SDL_SCANCODE_E] && distQuadrada < STUN_DIST_QUADRADO) {
+                if(teclas[SDL_SCANCODE_E]) {
                     danca.estadoAtual = ATORDOADA;
                     danca.tempoEstado = SDL_GetTicks();
                     hipnotizado = false;
                     estado = PARADO; 
                     printf("Dançarina atordoada!\n");
                 }
-                
-                if(distQuadrada > danca.raioHipnoseQuadrado) {
-                    danca.estadoAtual = DANCANDO;
+                if (SDL_GetTicks() - tempoHipnoseInicio > 5000) {
                     hipnotizado = false;
                     estado = PARADO; 
-                    printf("Jogador escapou da hipnose.\n");
+                    danca.estadoAtual = ATORDOADA;       
+                    danca.tempoEstado = SDL_GetTicks(); 
+                    printf("Fim da hipnose!\n");
                 }
                 break;
             case ATORDOADA:
@@ -230,17 +228,6 @@ int main(int argc, char* args[]) {
                 if(distQuadrada < danca.alcanceVisaoQuadrado)
                     danca.estadoAtual = DANCANDO;
                 break;
-        }
-
-        // Lógica de expiração da hipnose
-        if (hipnotizado) {
-            if (SDL_GetTicks() - tempoHipnoseInicio > 5000) {
-                hipnotizado = false;
-                estado = PARADO; 
-                danca.estadoAtual = ATORDOADA;       
-                danca.tempoEstado = SDL_GetTicks(); 
-                printf("Jogador resistiu à hipnose!\n");
-            }
         }
 
       // --- LÓGICA DA MÚMIA ---
@@ -273,7 +260,7 @@ int main(int argc, char* args[]) {
                        else mumia.x--;
                        if(my > 0) mumia.y++;
                        else mumia.y--;
-                    }
+                   }
                 }
                 break;
 
@@ -289,8 +276,7 @@ int main(int argc, char* args[]) {
 
                     if(rand() % 40 == 0) mumia.dirX = -mumia.dirX;
                     if(rand() % 40 == 0) mumia.dirY = -mumia.dirY;
-
-                    if(rand() % 50 == 0) mumia.estado = MUMIA_PERSEGUINDO;
+                    if(dist2 < mumia.alcanceVisao2) mumia.estado = MUMIA_PERSEGUINDO;
                 }
                 break;
 
