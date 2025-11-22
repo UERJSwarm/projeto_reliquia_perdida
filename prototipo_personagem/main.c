@@ -22,7 +22,8 @@ typedef enum {
     PARADO,
     ANDANDO,
     CORRENDO,
-    PULANDO
+    PULANDO,
+    ATACANDO
 } EstadoMovimento;
 
 typedef enum {
@@ -44,10 +45,11 @@ typedef struct {
   int x, y;
   int vida;
   int alcanceAtaque;
+  int danoAtaque;
   bool hipnotizado;
   bool enrolado;
   Uint32 tempoEstado;
-} Jogador
+} Jogador;
 
 typedef struct {
     EstadoDancarina estadoAtual;
@@ -65,8 +67,10 @@ typedef struct {
     EstadoMumia estado;
     int x, y;
     int w, h;
+    int vida;
     int alcanceVisao2;   // distancia para perseguir
     int distanciaEnrolar2; // distancia para ataque 
+    int danoAtaque;
     Uint32 tempoEstado;  // para controle de stun e confusão
     int dirX, dirY;      // usado na lógica CONFUSA
 } Mumia;
@@ -94,10 +98,6 @@ int main(int argc, char* args[]) {
     SDL_Rect r = {PLAYER_SCREEN_X, PLAYER_SCREEN_Y, PLAYER_WIDTH, PLAYER_HEIGHT};
     SDL_Rect c = {0, 0, 100, 80}; 
 
-    bool hipnotizado = false;
-    bool enrolado = false;
-    Uint32 tempoHipnoseInicio = 0; 
-
     // --- Dançarina ---
     Dancarina danca = {
         .estadoAtual = PARADA,
@@ -105,7 +105,7 @@ int main(int argc, char* args[]) {
         .y = 100,
         .w = 50,
         .h = 50,
-        .vida = 3,
+        .vida = 100,
         .alcanceVisaoQuadrado = 200 * 200, 
         .raioHipnoseQuadrado = 70 * 70, 
         .tempoEstado = 0,
@@ -120,6 +120,8 @@ int main(int argc, char* args[]) {
         .y = 400,
         .w = 40,
         .h = 40,
+        .vida = 100,
+        .danoAtaque = 20,
         .alcanceVisao2 = 200*200,
         .distanciaEnrolar2 = 50*50,
         .tempoEstado = 0,
@@ -132,23 +134,21 @@ int main(int argc, char* args[]) {
         .x = 180,
         .y = 130,
         .vida = 100,
+        .danoAtaque = 20,
+        .alcanceAtaque = 100 * 100,
         .hipnotizado = false,
         .enrolado = false,
         .tempoEstado = 0
    };
 
-    int player_world_x = 180;
-    int player_world_y = 130;
-
     int vel = 1;
     bool noChao = true;
     int chao = jogador.x;
     bool subindo = true;
+    bool acertou = false;
     int aux = 2;
     int k = 0;
     EstadoMovimento estado = PARADO;
-    bool hipnotizado = false;
-    bool enrolado = false;
     Uint32 tempoHipnoseInicio = 0; 
 
     bool rodando = true;
@@ -162,16 +162,20 @@ int main(int argc, char* args[]) {
         if (isevt) {
             if (evt.type == SDL_QUIT) rodando = false;
             else if (evt.type == SDL_KEYDOWN) {
-                if(!hipnotizado && !enrolado) { 
+                if(!jogador.hipnotizado && !jogador.enrolado) { 
                     switch (evt.key.keysym.sym) {
                         case SDLK_LSHIFT: if(noChao) estado = CORRENDO; break;
                         case SDLK_SPACE: 
                             if(noChao) {
-                                chao = player_world_y; 
+                                chao = jogador.y; 
                                 estado = PULANDO;
                                 noChao = false;
                             }
                             break;
+                        case SDLK_k:
+                            acertou = false;
+                            estado = ATACANDO;
+                           break;
                         case SDLK_UP: case SDLK_DOWN: case SDLK_LEFT: case SDLK_RIGHT:
                             if(estado != CORRENDO && estado != PULANDO && noChao)
                                 estado = ANDANDO;
@@ -179,7 +183,7 @@ int main(int argc, char* args[]) {
                     }
                 }
             } else if (evt.type == SDL_KEYUP) {
-                if(!hipnotizado && !enrolado && noChao) { 
+                if(!jogador.hipnotizado && !jogador.enrolado && noChao) { 
                     if(evt.key.keysym.sym == SDLK_LSHIFT) {
                         if(teclas[SDL_SCANCODE_LEFT] || teclas[SDL_SCANCODE_RIGHT] ||
                            teclas[SDL_SCANCODE_UP] || teclas[SDL_SCANCODE_DOWN])
@@ -204,18 +208,18 @@ int main(int argc, char* args[]) {
 
         // --- Lógica da dançarina ---
         // calcula distancia no mundo
-        int dx = player_world_x - danca.x;
-        int dy = player_world_y - danca.y;
+        int dx = jogador.x - danca.x;
+        int dy = jogador.y - danca.y;
         
         int distQuadrada = (dx*dx) + (dy*dy);
         switch(danca.estadoAtual) {
             case DANCANDO:
                 if(distQuadrada < danca.raioHipnoseQuadrado) {
                     danca.estadoAtual = HIPNOTIZANDO;
-                    hipnotizado = true;
+                    jogador.hipnotizado = true;
                     tempoHipnoseInicio = SDL_GetTicks();
                     estado = PARADO; 
-                    printf("Jogador hipnotizado!\n");
+                    printf("Jogador jogador.hipnotizado!\n");
                 }
                 if(distQuadrada > danca.alcanceVisaoQuadrado) {
                     danca.estadoAtual = PARADA;
@@ -229,12 +233,12 @@ int main(int argc, char* args[]) {
                 if(teclas[SDL_SCANCODE_E]) {
                     danca.estadoAtual = ATORDOADA;
                     danca.tempoEstado = SDL_GetTicks();
-                    hipnotizado = false;
+                    jogador.hipnotizado = false;
                     estado = PARADO; 
                     printf("Dançarina atordoada!\n");
                 }
                 if (SDL_GetTicks() - tempoHipnoseInicio > 5000) {
-                    hipnotizado = false;
+                    jogador.hipnotizado = false;
                     estado = PARADO; 
                     danca.estadoAtual = ATORDOADA;       
                     danca.tempoEstado = SDL_GetTicks(); 
@@ -252,8 +256,8 @@ int main(int argc, char* args[]) {
         }
 
       // --- LÓGICA DA MÚMIA ---
-        int mx = player_world_x - mumia.x;
-        int my = player_world_y - mumia.y;
+        int mx = jogador.x - mumia.x;
+        int my = jogador.y - mumia.y;
         int dist2 = mx*mx + my*my;
 
         switch(mumia.estado) {
@@ -268,7 +272,7 @@ int main(int argc, char* args[]) {
                 if(dist2 < mumia.distanciaEnrolar2) {
                     mumia.estado = MUMIA_ENROLANDO;
                     mumia.tempoEstado = SDL_GetTicks();
-                    printf("Mumia está enrolando o jogador!\n");
+                    printf("Mumia está enrolando o jogador, jogador tomou 20 de dano!\n");
                 } else if(dist2 > mumia.alcanceVisao2) {
                     mumia.estado = MUMIA_CONFUSA;
                     mumia.tempoEstado = SDL_GetTicks();
@@ -302,11 +306,12 @@ int main(int argc, char* args[]) {
                 break;
 
             case MUMIA_ENROLANDO:
-                enrolado = true;
+                jogador.enrolado = true;
+                jogador.vida -= mumia.danoAtaque;
                 if(SDL_GetTicks() - mumia.tempoEstado > 3000) {
                     mumia.estado = MUMIA_ATORDOADA;
                     mumia.tempoEstado = SDL_GetTicks();
-                    enrolado = false;
+                    jogador.enrolado = false;
                     printf("Múmia soltou o jogador!\n");
                 }
                 break;
@@ -320,38 +325,86 @@ int main(int argc, char* args[]) {
         }
 
         // --- Lógica do personagem ---
-        if(!hipnotizado && !enrolado) {
+        if(!jogador.hipnotizado && !jogador.enrolado) {
             switch(estado) {
                 case ANDANDO:
                     vel = 1;
-                    if(teclas[SDL_SCANCODE_UP]) { player_world_y -= vel; c = (aux==1)? (SDL_Rect){200,0,100,80} : (SDL_Rect){100,0,100,80}; }
-                    if(teclas[SDL_SCANCODE_DOWN]) { player_world_y += vel; c = (aux==1)? (SDL_Rect){200,0,100,80} : (SDL_Rect){100,0,100,80}; }
-                    if(teclas[SDL_SCANCODE_LEFT]) { player_world_x -= vel; c = (SDL_Rect){200,0,100,80}; aux=1; }
-                    if(teclas[SDL_SCANCODE_RIGHT]) { player_world_x += vel; c = (SDL_Rect){100,0,100,80}; aux=2; }
+                    if(teclas[SDL_SCANCODE_UP]) { jogador.y -= vel; c = (aux==1)? (SDL_Rect){200,0,100,80} : (SDL_Rect){100,0,100,80}; }
+                    if(teclas[SDL_SCANCODE_DOWN]) { jogador.y += vel; c = (aux==1)? (SDL_Rect){200,0,100,80} : (SDL_Rect){100,0,100,80}; }
+                    if(teclas[SDL_SCANCODE_LEFT]) { jogador.x -= vel; c = (SDL_Rect){200,0,100,80}; aux=1; }
+                    if(teclas[SDL_SCANCODE_RIGHT]) { jogador.x += vel; c = (SDL_Rect){100,0,100,80}; aux=2; }
                     break;
 
                 case CORRENDO:
                     vel = 2;
-                    if(teclas[SDL_SCANCODE_UP]) { player_world_y -= vel; c = (aux==1)? (SDL_Rect){590,0,100,80} : (SDL_Rect){490,0,100,80}; }
-                    if(teclas[SDL_SCANCODE_DOWN]) { player_world_y += vel; c = (aux==1)? (SDL_Rect){590,0,100,80} : (SDL_Rect){490,0,100,80}; }
-                    if(teclas[SDL_SCANCODE_LEFT]) { player_world_x -= vel; c = (SDL_Rect){590,0,100,80}; aux=1; }
-                    if(teclas[SDL_SCANCODE_RIGHT]) { player_world_x += vel; c = (SDL_Rect){490,0,100,80}; aux=2; }
+                    if(teclas[SDL_SCANCODE_UP]) { jogador.y -= vel; c = (aux==1)? (SDL_Rect){590,0,100,80} : (SDL_Rect){490,0,100,80}; }
+                    if(teclas[SDL_SCANCODE_DOWN]) { jogador.y += vel; c = (aux==1)? (SDL_Rect){590,0,100,80} : (SDL_Rect){490,0,100,80}; }
+                    if(teclas[SDL_SCANCODE_LEFT]) { jogador.x -= vel; c = (SDL_Rect){590,0,100,80}; aux=1; }
+                    if(teclas[SDL_SCANCODE_RIGHT]) { jogador.x += vel; c = (SDL_Rect){490,0,100,80}; aux=2; }
                     break;
 
                 case PULANDO:
                     if(k==0) { c=(SDL_Rect){300,0,100,80}; k=1; }
-                    if(teclas[SDL_SCANCODE_LEFT]) { player_world_x -= vel; c=(SDL_Rect){400,0,100,80}; }
-                    if(teclas[SDL_SCANCODE_RIGHT]) { player_world_x += vel; c=(SDL_Rect){300,0,100,80}; }
-                    if(subindo) { player_world_y -= vel; if(player_world_y <= chao-50) subindo=false; }
-                    else { player_world_y += vel; if(player_world_y >= chao) { player_world_y=chao; k=0; estado=(teclas[SDL_SCANCODE_LEFT]||teclas[SDL_SCANCODE_RIGHT])? ANDANDO : PARADO; noChao=true; subindo=true; } }
+                    if(teclas[SDL_SCANCODE_LEFT]) { jogador.x -= vel; c=(SDL_Rect){400,0,100,80}; }
+                    if(teclas[SDL_SCANCODE_RIGHT]) { jogador.x += vel; c=(SDL_Rect){300,0,100,80}; }
+                    if(subindo) { jogador.y -= vel; if(jogador.y <= chao-50) subindo=false; }
+                    else { jogador.y += vel; if(jogador.y >= chao) { jogador.y=chao; k=0; estado=(teclas[SDL_SCANCODE_LEFT]||teclas[SDL_SCANCODE_RIGHT])? ANDANDO : PARADO; noChao=true; subindo=true; } }
                     break;
 
                 case PARADO:
                     c = (SDL_Rect){0,0,100,80};
                     break;
+                case ATACANDO:
+                            
+                            // --- TENTAR ACERTAR A MÚMIA ---
+
+                            int mx_atk = jogador.x - mumia.x;
+                            int my_atk = jogador.y - mumia.y;
+
+                            int dist2_mumia = mx_atk*mx_atk + my_atk*my_atk;
+
+                            if (dist2_mumia < jogador.alcanceAtaque) {
+                                mumia.vida -= jogador.danoAtaque; 
+                                acertou = true;
+                                
+                                // Atordoa a múmia no ataque
+                                if(mumia.estado != MUMIA_ATORDOADA) {
+                                    mumia.estado = MUMIA_ATORDOADA;
+                                    mumia.tempoEstado = SDL_GetTicks();
+                                }
+                                printf("Múmia atingida. Dano: %d. Vida restante (Múmia): %d\n", jogador.danoAtaque, mumia.vida);
+                            } 
+
+                            // --- TENTAR ACERTAR A DANÇARINA ---
+
+                            int dx_atk = jogador.x - danca.x;
+                            int dy_atk = jogador.y - danca.y;
+                            int dist2_danca = dx_atk*dx_atk + dy_atk*dy_atk;
+
+                            if (dist2_danca < jogador.alcanceAtaque) {
+                                danca.vida -= jogador.danoAtaque;
+                                acertou = true;
+
+                                // Atordoa a dançarina no ataque
+                                if(danca.estadoAtual != ATORDOADA) {
+                                    danca.estadoAtual = ATORDOADA;
+                                    danca.tempoEstado = SDL_GetTicks();
+                                    // Se a dançarina for atordoada, o jogador não está mais hipnotizado
+                                    jogador.hipnotizado = false; 
+                                }
+                                printf("Dançarina atingida. Dano: %d. Vida restante (Dançarina): %d\n", jogador.danoAtaque, danca.vida);
+                            }
+
+                            if (!acertou) {
+                                printf("Ataque do Jogador: Nenhum alvo no alcance.\n");
+                            }
+                            estado=(teclas[SDL_SCANCODE_LEFT]|| teclas[SDL_SCANCODE_RIGHT]  || teclas[SDL_SCANCODE_UP] || teclas[SDL_SCANCODE_DOWN] )? ANDANDO : PARADO;
+
+                break;
+                
                 default: break;
             }
-        } else if (hipnotizado) {
+        } else if (jogador.hipnotizado) {
             c = (SDL_Rect){680,0,100,80};
         }
 
@@ -361,8 +414,8 @@ int main(int argc, char* args[]) {
 
         // Dançarina
         // Calcula o deslocamento na tela
-        int camera_offset_x = player_world_x - PLAYER_SCREEN_X;
-        int camera_offset_y = player_world_y - PLAYER_SCREEN_Y;
+        int camera_offset_x = jogador.x - PLAYER_SCREEN_X;
+        int camera_offset_y = jogador.y - PLAYER_SCREEN_Y;
         
         // Calcula a posição da dançarina na tela
         SDL_Rect rDanca = { 
