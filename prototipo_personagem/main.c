@@ -219,7 +219,7 @@ int main(int argc, char* args[]) {
                     jogador.hipnotizado = true;
                     tempoHipnoseInicio = SDL_GetTicks();
                     estado = PARADO; 
-                    printf("Jogador jogador.hipnotizado!\n");
+                    printf("Jogador hipnotizado!\n");
                 }
                 if(distQuadrada > danca.alcanceVisaoQuadrado) {
                     danca.estadoAtual = PARADA;
