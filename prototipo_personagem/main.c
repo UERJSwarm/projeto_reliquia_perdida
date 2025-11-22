@@ -40,6 +40,14 @@ typedef enum {
     MUMIA_ATORDOADA
 } EstadoMumia;
 
+typedef struct {
+  int x, y;
+  int vida;
+  int alcanceAtaque;
+  bool hipnotizado;
+  bool enrolado;
+  Uint32 tempoEstado;
+} Jogador
 
 typedef struct {
     EstadoDancarina estadoAtual;
@@ -86,17 +94,6 @@ int main(int argc, char* args[]) {
     SDL_Rect r = {PLAYER_SCREEN_X, PLAYER_SCREEN_Y, PLAYER_WIDTH, PLAYER_HEIGHT};
     SDL_Rect c = {0, 0, 100, 80}; 
 
-    int player_world_x = 180;
-    int player_world_y = 130;
-
-    int vel = 1;
-    bool noChao = true;
-    int chao = player_world_y;
-    bool subindo = true;
-    int aux = 2;
-    int k = 0;
-    EstadoMovimento estado = PARADO;
-
     bool hipnotizado = false;
     bool enrolado = false;
     Uint32 tempoHipnoseInicio = 0; 
@@ -129,6 +126,30 @@ int main(int argc, char* args[]) {
         .dirX = 1,
         .dirY = 1
     };
+
+    // --- Jogador ---
+     Jogador jogador = {
+        .x = 180,
+        .y = 130,
+        .vida = 100,
+        .hipnotizado = false,
+        .enrolado = false,
+        .tempoEstado = 0
+   };
+
+    int player_world_x = 180;
+    int player_world_y = 130;
+
+    int vel = 1;
+    bool noChao = true;
+    int chao = jogador.x;
+    bool subindo = true;
+    int aux = 2;
+    int k = 0;
+    EstadoMovimento estado = PARADO;
+    bool hipnotizado = false;
+    bool enrolado = false;
+    Uint32 tempoHipnoseInicio = 0; 
 
     bool rodando = true;
     SDL_Event evt;
